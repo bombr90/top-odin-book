@@ -87,7 +87,7 @@ router.delete(
 );
 
 router.post("/user/post/:id", authController.loggedIn, async function (req, res) {
-  // User creates new comment ***todo*** add friend id lookup check 
+  // User or user's friend creates new comment 
   try {
     const post = await Post.findById(req.params.id);
     if(!post) {
@@ -98,14 +98,18 @@ router.post("/user/post/:id", authController.loggedIn, async function (req, res)
           error: "Post does not exist",
         });
     }  
-    const userFriends = await User.findById(req.user._id, 'friends');
-    const isFriend = userFriends.friends.indexOf(post.author);
-    if (isFriend === -1) {
-       return res.status(401).json({
-         message: `post'user/post/:id' path: ${req.originalUrl}`,
-         error: "User is not friend of author",
-       });
-     }
+    const isAuthor = post.author.equals(req.user._id);
+    let isFriend, userFriends;
+    if(!isAuthor){
+      userFriends = await User.findById(req.user._id, "friends");
+      isFriend = userFriends.friends.indexOf(post.author);
+      if (isFriend === -1) {
+        return res.status(401).json({
+          message: `post'user/post/:id' path: ${req.originalUrl}`,
+          error: "User is not friend of author or author",
+        });
+      }
+    }
     const newCommentData = {
         postId: req.params.id,
         author: req.user._id,
@@ -142,10 +146,7 @@ router.get(
         0,
         Math.min(maxPage, parseInt(req.query.page) || 0)
       );
-
-      console.log("postCount", postCount, "maxpage", maxPage);
-
-      const allPosts = await Post.find({
+      const posts = await Post.find({
         author: { $in: [user._id, ...user.friends] },
       })
         .sort({ created: -1 })
@@ -154,12 +155,15 @@ router.get(
           path: "author",
           select: "avatar displayName",
         })
+        .populate({
+          path: "commentCount",
+        })
         .exec();
 
-      console.log(allPosts);
+      console.log(posts);
       res.json({
-        message: `get'user/posts/index' path: ${req.originalUrl}`,
-        allPosts: allPosts,
+        path: `${req.originalUrl}`,
+        data: { posts, page, maxPage },
       });
     } catch (err) {
       console.error(err.message);
@@ -233,10 +237,9 @@ router.post("/user/post", authController.loggedIn, async function (req, res) {
     const newPostData = { author: req.user.id, content: req.body.content };
     const newPost = new Post(newPostData);
     const post = await newPost.save();
-
-    res.json({
-      message: `post'/user/post' path: ${req.originalUrl}`,
-      post: post,
+    return res.json({
+      path: `${req.originalUrl}`,
+      data: post,
     });
   } catch (err) {
     console.error(err.message);
@@ -284,39 +287,43 @@ router.put("/user/post/:id/like", authController.loggedIn, async function(req, r
   }
 })
 
-router.get("/post/:id", async function (req, res) {
-  // Get detailed post info
-  try {
-    const post = await Post.findById(req.params.id)
-      .populate({ 
-        path: "author", 
-        select: "avatar displayName" 
-      })
-      .populate({
-        path: "comments",
-        populate: { 
-          path: "author", 
-          select: "displayName avatar" 
-        },
-      })
-      .populate({
-        path: "commentCount"
-      })
-    if (!post) {
-      return res.status(404).json({
-        message: `get'/post/:id' path: ${req.originalUrl}`,
-        error: "Post does not exist",
+router.get(
+  "/user/post/:id",
+  authController.loggedIn,
+  async function (req, res) {
+    // Get detailed post info
+    try {
+      const post = await Post.findById(req.params.id)
+        .populate({
+          path: "author",
+          select: "avatar displayName",
+        })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "author",
+            select: "displayName avatar",
+          },
+        })
+        .populate({
+          path: "commentCount",
+        });
+      if (!post) {
+        return res.status(404).json({
+          message: `get'/user/post/:id' path: ${req.originalUrl}`,
+          error: "Post does not exist",
+        });
+      }
+      res.json({
+        path: `${req.originalUrl}`,
+        data: { post }
       });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
     }
-    res.json({
-      message: `get'/post/:id' path: ${req.originalUrl}`,
-      post: post,
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
   }
-});
+);
 
 router.delete("/user/post/:id", authController.loggedIn, async function (req, res) {
   // Delete post and associated comments
@@ -378,26 +385,66 @@ router.get("/post/:id/comments", async function (req, res) {
 });
 
 
-router.get("/user/index", async function (req, res) {
-  // Index of all Odinbook users 
+router.get(
+  "/user/index", 
+  authController.loggedIn, 
+  async function (req, res) {
+  // Index of all Odinbook users
   try {
+    //grab user outstanding friend requests and friends
+    // const user = await User.findById(req.user.id, "friends, friendsRequests");
     //set valid pagination limits if required
     const userCount = await User.count();
-    const limit = Math.max(
-      1,
-      Math.min(25, parseInt(req.query.limit) || 10)
-    );
+    const limit = Math.max(1, Math.min(25, parseInt(req.query.limit) || 10));
     const maxPage = Math.floor(userCount / limit);
-    const page = Math.max(
-      0,
-      Math.min(maxPage, parseInt(req.query.page) || 0)
-    );
-  
-    const users = await User.find({}, "displayName firstName lastName avatar email ")
-      .sort({ displayName: 1 })
-      .skip(limit * page)
-      .limit(limit);
-    res.json({ message: `get'/user/index' path: ${req.originalUrl}`, users: users, limit: limit, page: page, userCount: userCount, maxPage: maxPage });
+    const page = Math.max(0, Math.min(maxPage, parseInt(req.query.page) || 0));
+    
+    const userId = new mongoose.Types.ObjectId(req.user._id);
+    const users = await User.aggregate([
+      {
+        $match: { _id: { $nin: [userId] } },
+      },
+      {
+        $project: {
+          displayName: 1,
+          avatar: 1,
+          isFriend: {$in:[req.user._id,"$friends"]},
+          isRequester: {$in:[userId,"$friendsRequests.requester"]},
+          isRecipient: {$in:[userId,"$friendsRequests.recipient"]},
+        },
+      },
+      {
+        $addFields: {
+          // friend: false,
+          // friend2: { $in: [req.user._id, []] },
+          // friends3: {$expr:{$in:[req.user._id,"$friends"]}},
+          // friend2: { $in: [req.user._id, [req.user._id]] },
+          // friendRequest: false,
+        },
+      },
+      {
+        $sort: {
+          displayName: 1,
+        },
+      },
+      {
+        $skip: limit * page,
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+    console.log(users)
+    res.json({
+      path: `${req.originalUrl}`,
+      data: {
+        users,
+        limit,
+        page,
+        userCount,
+        maxPage,
+      },
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -407,18 +454,24 @@ router.get("/user/index", async function (req, res) {
 router.get("/user/:id/profile", validateParamId, async function (req, res) {
   // Get user profile (profile info, photo and posts)
   try {
-    const user = await User.findById(
-      req.params.id
-    ).populate('posts');
-    if (!user) {
+    const userData = await User.findById(
+      req.params.id,
+      "avatar firstName lastName displayName posts updated created"
+    )
+      .populate({
+        path: "posts",
+      })
+      .exec();
+
+    if (!userData) {
       return res.status(404).json({
-        message: `get'/user/:id/profile' path: ${req.originalUrl}`,
+        path: req.originalUrl,
         error: "User does not exist",
       });
     }
     res.json({
-      message: `get'/user/:id/profile' path: ${req.originalUrl}`,
-      user: user,
+      path: req.originalUrl,
+      data: userData,
     });
   } catch (err) {
     console.error(err.message);
@@ -484,15 +537,18 @@ router.post(
           recipientId: recipientId,
         });
       }
-      const alreadyRequest = requester.friendsRequests.find(
-        (existingRequest) =>
-          existingRequest.recipient.equals(recipientId) ||
-          existingRequest.recipient.equals(requesterId)
+      const existingRequest = requester.friendsRequests.find(
+        (el) =>
+          (el.recipient.equals(recipientId) &&
+            el.requester.equals(requesterId)) ||
+          (el.recipient.equals(requesterId) && el.requester.equals(recipientId))
       );
-      if (alreadyRequest) {
+      console.log('existingrequest',existingRequest)
+      if (existingRequest) {
         return res.json({
-          message: "recipient already requested to be friend",
+          message: "request to be friend already exists",
           recipientId: recipientId,
+          existingRequest,
         });
       }
 
@@ -519,9 +575,10 @@ router.post(
         options
       );
       res.json({
-        message: `post'/user/:id/friendsrequest' path: ${req.originalUrl}`,
-        requesterFriendsRequests: requesterFriendsRequests,
-        recipientFriendsRequests: recipientFriendsRequests,
+        path: req.originalUrl,
+        success: true,
+        requesterFriendsRequests,
+        recipientFriendsRequests,
       });
     } catch (err) {
       console.error(err.message);
@@ -585,13 +642,13 @@ router.delete(
           options
         );
         return res.json({
-          message: `delete'/user/:id/friendsrequest' path: ${req.originalUrl}`,
+          path: req.originalUrl,
           requesterFriendsRequests: requesterFriendsRequests,
           recipientFriendsRequests: recipientFriendsRequests,
         });
       } else {
         return res.json({
-          message: `delete'/user/:id/friendsrequest' path: ${req.originalUrl}`,
+          path: req.originalUrl,
           existingRequest: existingRequest,
         });
       }
@@ -611,6 +668,12 @@ router.put(
       const userId = req.user.id;
       const friendId = req.body.friendId;
       const requestStatus = req.body.requestStatus;
+      console.log(
+        "/user/friendsrequest route: ",
+        userId,
+        friendId,
+        requestStatus
+      );
       // validate IDs
       if (
         !mongoose.isValidObjectId(userId) ||
@@ -634,10 +697,12 @@ router.put(
           friendId: friendId,
         });
       }
-      // check if user is recipient of an outstandng friendsrequest
       const existingRequest = await user.friendsRequests.find(
-        (existingRequest) => existingRequest.recipient.equals(userId)
+        (el) => {
+          return el.recipient.equals(userId) && el.requester.equals(friendId)
+        }
       );
+
       if (existingRequest) {
         // Update two documents (use transactions for future refactor)
         const options = {
@@ -645,8 +710,9 @@ router.put(
           projection: "friends friendsRequests",
           lean: true,
         };
-        if (requestStatus==='true') {
-          console.log('adding new friend')
+        console.log('updating request and friends list if required:', requestStatus, requestStatus===true)
+        if (requestStatus === true) {
+          console.log("adding new friend");
           const userFriendsRequests = await User.findByIdAndUpdate(
             userId,
             {
@@ -664,12 +730,12 @@ router.put(
             options
           );
           return res.json({
-            message: `put'/user/friendsrequest' path: ${req.originalUrl}`,
+            path: req.originalUrl,
             userFriendsRequests: userFriendsRequests,
             friendFriendsRequests: friendFriendsRequests,
           });
         } else {
-          console.log('rejecting request....')
+          console.log("rejecting request....");
           const userFriendsRequests = await User.findByIdAndUpdate(
             userId,
             {
@@ -685,17 +751,35 @@ router.put(
             options
           );
           return res.json({
-            message: `put'/user/:id/friendsrequest' path: ${req.originalUrl}`,
+            path: req.originalUrl,
             userFriendsRequests: userFriendsRequests,
             friendFriendsRequests: friendFriendsRequests,
           });
         }
       } else {
         return res.json({
-          message: `put'/user/friendsrequest' path: ${req.originalUrl}`,
-          existingRequest: existingRequest,
+          path: req.originalUrl,
+          existingRequest,
         });
       }
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+router.get(
+  "/user/friendsrequest",
+  authController.loggedIn,
+  async function (req, res) {
+    try {
+      //  validate valid userIDs
+      const user = await User.findById(req.user.id, "friendsRequests");
+      return res.json({
+        message: `get'/user/friendsrequest' path: ${req.originalUrl}`,
+        user: user,
+      });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
@@ -765,8 +849,24 @@ authController.loggedIn,
   }
 });
 
-router.get("/test", authController.loggedIn, function (req, res) {
-  res.json({ message: "User currently logged in", user: req.user });
+router.get("/user/friends", authController.loggedIn, async function (req, res) {
+  try {
+    // Get friendslist
+    const user = await User.findById(req.user.id, "friends").lean();
+    res.json({
+      message: `get'/user/friends' path: ${req.originalUrl}`,
+      user: user,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+
+router.get("/user/data", authController.loggedIn, async function (req, res) {
+  const user = await User.findById(req.user.id, 'firstName lastName displayName email avatar').lean()
+  res.json({ user: user });
 });
 
 module.exports = router;

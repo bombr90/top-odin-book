@@ -19,15 +19,15 @@ const LocalSchema = new Schema(
   { _id: false }
 );
 
-const FacebookSchema = new Schema(
-  {
-    id: { type: String, required: true },
-    token: { type: String, required: true },
-    email: { type: String, required: true },
-    name: { type: String, required: true },
-  },
-  { _id: false }
-);
+// const FacebookSchema = new Schema(
+//   {
+//     id: { type: String, required: true },
+//     token: { type: String, required: true },
+//     email: { type: String, required: true },
+//     name: { type: String, required: true },
+//   },
+//   { _id: false }
+// );
 
 const AuthSchema = new Schema(
   {
@@ -39,7 +39,7 @@ const AuthSchema = new Schema(
       unique: true,
     },
     local: LocalSchema,
-    facebook: FacebookSchema,
+    // facebook: FacebookSchema,
     role: {
       type: String,
       enum: ["user", "admin"],

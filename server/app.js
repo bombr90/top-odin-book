@@ -20,6 +20,7 @@ const crypto = require("crypto")
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 const port = process.env.SERVER_PORT || '5000';
+const clientPort = process.env.CLIENT_PORT || '3000';
 const app = express();
 const passport = require("passport");
 const session = require("express-session");
@@ -27,8 +28,8 @@ const session = require("express-session");
 app.use(cookieParser());
 
 app.use(cors({
-  // credentials: true,
-  // origin: `http://localhost:${port}`
+  credentials: true,
+  origin: `http://localhost:${clientPort}`
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -90,6 +91,8 @@ app.use(function(err, req, res, next) {
 
 app.listen(port, () => {
   console.log("server listening on port: ", port);
+  console.log("cors enabled for on port: ", clientPort);
+
 });
 
 module.exports = app;
