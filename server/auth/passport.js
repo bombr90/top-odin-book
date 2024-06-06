@@ -33,26 +33,16 @@ module.exports = function (passport) {
           const authObj = await Auth.findOne({ email: email },{local: 1});
           if (!authObj) {
             return done(new Error("Invalid email"));
-            // return done(null, false, { message: "Invalid email (passport)" });
           }
-          // if (typeof authObj.local === "undefined") {
-          //   return done(null, false, {
-          //     message: "Local object does not exist (passport)",
-          //   });
-          // }
           bcrypt.compare(password, authObj.local.password, (err, res) => {
             if (res) {
               // success return user id
-              console.log('succcessful login', authObj._id.toString())
+              console.log('successful login', authObj._id.toString())
               return done(null, { id: authObj._id.toString() } );
             } else {
               // passwords !match
+              console.log('failed login attempt', authObj._id.toString())
                 return done(null, false, new Error("Incorrect password"));
-
-              // return done(null, false, {
-              //   message: "Incorrect password (auth)",
-              //   email: email,
-              // });
             }
           });
         } catch (err) {

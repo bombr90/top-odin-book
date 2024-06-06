@@ -12,6 +12,7 @@ import {
   Routes,
   Route,
   useNavigate,
+  Navigate
 } from "react-router-dom";
 
 function App() {
@@ -39,7 +40,7 @@ const navigate = useNavigate();
      if (userData === null) {
        navigate("/auth/v1/login", { replace: true });
      } else {
-       navigate("/api/v1/#", { replace: true });
+       navigate("/api/v1/", { replace: true });
      }
    }, [userData]);
 
@@ -62,6 +63,7 @@ const navigate = useNavigate();
                   </>
                 }
               />
+              <Route path="*" element={<Navigate to="/api/v1" replace />} />
             </Routes>
           </LoadingProvider>
         </ModalContext.Provider>

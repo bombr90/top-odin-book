@@ -7,9 +7,11 @@ const getGravatarUrl = require("../generate-gravatar.js");
 //Middleware
 const checkAuth = (req, res, next) => {
   if (req.isAuthenticated()) {
+    console.log('authenticated')
     return next();
   } else {
-    return res.status(401).json({ path: req.originalUrl });
+    console.log('not authenticated')
+    return res.status(401).json({ path: req.originalUrl, message: "Not authenticated" });
   }
 };
 

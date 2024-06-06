@@ -23,6 +23,8 @@ app.use(
       `http://localhost:${clientPort}`,
       `https://top-odin-book-frontend.onrender.com`,
     ],
+    allowedHeaders: ['Content-Type'],
+    methods: ["GET", "PUT", "DELETE", "POST", "HEAD", "OPTIONS"],
   })
 );
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,7 +36,7 @@ app.use(
     secret: process.env.SECRET || crypto.randomBytes(64).toString("hex"),
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 720 * 60 * 1000 }, // 12hr
+    cookie: { httpOnly: false, maxAge: 720 * 60 * 1000 }, // 12hr
   })
 );
 
