@@ -16,10 +16,15 @@ const helmet = require("helmet");
 
 app.use(cookieParser());
 app.use(helmet());
-app.use(cors({
-  credentials: true,
-  origin: `http://localhost:${clientPort}`
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      `http://localhost:${clientPort}`,
+      `https://top-odin-book-frontend.onrender.com/${clientPort}`,
+    ],
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
