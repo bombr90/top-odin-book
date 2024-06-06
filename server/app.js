@@ -23,7 +23,7 @@ app.use(
       `http://localhost:${clientPort}`,
       `https://top-odin-book-frontend.onrender.com`,
     ],
-    allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'X-Requested-With','Accept','Authorization','Set-Cookie'],
     methods: ["GET", "PUT", "DELETE", "POST", "HEAD", "OPTIONS"],
   })
 );
