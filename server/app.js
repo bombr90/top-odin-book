@@ -21,7 +21,7 @@ app.use(
     credentials: true,
     origin: [
       `http://localhost:${clientPort}`,
-      `https://top-odin-book-frontend.onrender.com:${clientPort}`,
+      `https://top-odin-book-frontend.onrender.com`,
     ],
   })
 );
