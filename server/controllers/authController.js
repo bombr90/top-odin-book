@@ -59,9 +59,15 @@ const postUserLocal = async (req, res) => {
 };
 
 const deleteUser = async function (req, res) {
-  //clear out user's profile information, posts, comments and likes
+  //  clear out user's profile information, posts, comments and likes
   const userId = req.user.id;
-
+  // protect "guest" account from being deleted
+  if (userId === "665630e767d39b96458fa94a") {
+    return res.json({
+      path: req.originalUrl,
+      message: "You cannot delete the Guest account.",
+    });
+  }
   const existingUser = await User.findById(userId)
     .populate({
       path: "comments",
