@@ -1,4 +1,6 @@
-const RegisterWidget = ({ data, onChange, onSubmit }) => {
+import PropTypes from "prop-types";
+
+const RegisterWidget = ({ data, onChange, onSubmit, backLogin }) => {
   const {
     userProfile: { email, displayName, firstName, lastName, avatar, password },
   } = data;
@@ -7,6 +9,8 @@ const RegisterWidget = ({ data, onChange, onSubmit }) => {
   const labelStyle = "m-1 font-bold text-sm text-gray-200";
   const inputStyle =
     "bg-gray-100 text-gray-400 font-bold rounded-t-sm border p-1 mx-1 h-8 text-med";
+  const btnStyle =
+    "rounded-full flex-1 bg-gray-100 px-2 py-1 text-gray-400 font-bold hover:bg-gray-300 self-end rounded-md m-2 disabled:cursor-not-allowed hover:cursor-pointer";
 
   return (
     <form
@@ -100,20 +104,36 @@ const RegisterWidget = ({ data, onChange, onSubmit }) => {
           name="avatar"
         ></input>
         * Required
-        <button
-          type="submit"
-          className="rounded-full bg-gray-100 px-4 py-1 text-gray-400 font-bold hover:bg-gray-300 self-end px-8 rounded-md m-2 disabled:cursor-not-allowed hover:cursor-pointer"
-          disabled={
-            password.length > 0 && displayName.length > 0 && email.length > 0
-              ? false
-              : true
-          }
-        >
-          Register
-        </button>
+        <div className="flex">
+          <button
+            className={btnStyle}
+            type="button"
+            onClick={() => backLogin()}
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            className={btnStyle}
+            disabled={
+              password.length > 0 && displayName.length > 0 && email.length > 0
+                ? false
+                : true
+            }
+          >
+            Register
+          </button>
+        </div>
       </div>
     </form>
   );
+};
+
+RegisterWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  backLogin: PropTypes.func.isRequired
 };
 
 export default RegisterWidget;

@@ -5,8 +5,8 @@ import { userContext } from "./userContext";
 import { useContext } from "react";
 import { ModalContext } from "./ModalContext";
 import { useLoading } from "./LoadingContext";
-import { BsFillPersonFill } from "react-icons/bs";
 import AvatarWidget from "./AvatarWidget";
+import { PropTypes } from "prop-types";
 
 const PostDetailsWidget = ({ data }) => {
   const { id, content } = data;
@@ -56,7 +56,7 @@ const PostDetailsWidget = ({ data }) => {
       }
     };
     return (
-      <div key={id} className="text-gray-400 bg-white border-b-2">
+      <div key={id} className="flex flex-col text-gray-400 bg-white border-b-2">
         <span className="font-bold italic">Original Post:</span>
         <div className="flex p-2">
           <div className="min-w-20 self-center">
@@ -107,7 +107,7 @@ const PostDetailsWidget = ({ data }) => {
     return (
       <div
         key={commentId}
-        className="flex text-gray-400 even:bg-gray-50 odd:bg-slate-100"
+        className="flex text-gray-400 p-2 even:bg-gray-50 odd:bg-slate-100"
       >
         <div className="flex flex-col m-1 gap-1 text-left items-start flex-1 justify-center">
           <span className="mt-1 text-xs ">
@@ -127,13 +127,13 @@ const PostDetailsWidget = ({ data }) => {
             )}
           </span>
         </div>
-        <AvatarWidget id={author.id} avatar={author.avatar} size="60px" />
+        <AvatarWidget id={author.id} avatar={author.avatar} size="80px" />
       </div>
     );
   };
 
   return (
-    <div className="flex h-[100%] flex-col">
+    <div className="flex flex-1 h-[100%] flex-col">
       <div className="top-0 m-1 sticky">
         {postTemplate(content.post)}
       </div>
@@ -148,6 +148,12 @@ const PostDetailsWidget = ({ data }) => {
       </div>
     </div>
   );
+};
+
+PostDetailsWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+  id: PropTypes.string,
+  content: PropTypes.object,
 };
 
 export default PostDetailsWidget;

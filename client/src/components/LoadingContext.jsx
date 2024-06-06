@@ -1,4 +1,5 @@
 import {createContext, useContext, useState} from "react";
+import PropTypes from "prop-types";
 
 const LoadingContext = createContext({
   loading: false,
@@ -25,5 +26,9 @@ function useLoading(){
       }
   
 }
+
+LoadingProvider.propTypes = {
+  children: PropTypes.any,
+};
 
 export { LoadingProvider, useLoading };

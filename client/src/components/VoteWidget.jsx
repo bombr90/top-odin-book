@@ -1,4 +1,5 @@
 import { BsFillHandThumbsUpFill } from "react-icons/bs";
+import PropTypes from "prop-types";
 
 const VoteWidget = ({ likeCount, onClick }) => {
   return (
@@ -11,6 +12,11 @@ const VoteWidget = ({ likeCount, onClick }) => {
       {likeCount || "Like"}
     </div>
   );
+};
+
+VoteWidget.propTypes = {
+  likeCount: PropTypes.number,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default VoteWidget;

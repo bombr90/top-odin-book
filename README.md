@@ -16,9 +16,9 @@ npm start
 
 >**Note: You'll need to self-host a mongoDB database or have mongoDB atlas account with a valid DB connection string saved as an environmental variable. Create a '.env' file in the root directory in the following format:* 
 >- DB_URI = "mongodb+srv://[yourUsername]:[myRealPassword]@cluster0.mongodb.net/blog-api?w=majority"
->- SECRET = [your JWT secret]
->- ADMINCODE = [your admin code]
->- MEMBERCODE = [your member code]
+>- SECRET = [your session secret]
+>- SERVER_PORT = [your selected port - default 5000]
+>- CLIENT_PORT = [your selected port - default 3000]
 
 ## Built with
 - [React](https://react.dev/)
@@ -27,4 +27,5 @@ npm start
 - [Express](https://expressjs.com/)
 - [MongoDB](https://cloud.mongodb.com/)
 - [Mongoose](https://mongoosejs.com/)
+- [headlessUI](https://headlessui.com/)
 - [Passport](https://www.passportjs.org/)

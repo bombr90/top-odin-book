@@ -1,5 +1,6 @@
 export const mainAPI = {
   userIndex: async (page, limit) => {
+    //  Get/traverse user index
     const response = await fetch(
       `http://localhost:5000/api/v1/user/index?page=${page}&limit=${limit}`,
       {
@@ -10,9 +11,10 @@ export const mainAPI = {
     );
     return await response.json();
   },
-  postIndex: async (page) => {
+  postIndex: async (page, limit) => {
+    // Get/traverse use feed
     const response = await fetch(
-      `http://localhost:5000/api/v1/user/posts/index?page=${page}`,
+      `http://localhost:5000/api/v1/user/posts/index?page=${page}&limit=${limit}`,
       {
         method: "get",
         mode: "cors",
@@ -22,6 +24,7 @@ export const mainAPI = {
     return await response.json();
   },
   postDetails: async (id) => {
+    //  Get individual post and comments thread
     const response = await fetch(
       `http://localhost:5000/api/v1/user/post/${id}`,
       {
@@ -141,25 +144,6 @@ export const mainAPI = {
     );
     return await response.json();
   },
-  // getFriendRequests: async () => {
-  //   const response = await fetch(
-  //     `http://localhost:5000/api/v1/user/friendsrequest`,
-  //     {
-  //       method: "get",
-  //       mode: "cors",
-  //       credentials: "include",
-  //     }
-  //   );
-  //   return await response.json();
-  // },
-  // getFriendsList: async () => {
-  //   const response = await fetch(`http://localhost:5000/api/v1/user/friends`, {
-  //     method: "get",
-  //     mode: "cors",
-  //     credentials: "include",
-  //   });
-  //   return await response.json();
-  // },
   deleteFriend: async (data) => {
     const response = await fetch(`http://localhost:5000/api/v1/user/friends`, {
       method: "delete",
@@ -172,13 +156,32 @@ export const mainAPI = {
     });
     return await response.json();
   },
-  getUserProfile: async(data)=>{
-    const {id} = data
-    const response = await fetch(`http://localhost:5000/api/v1/user/${id}/profile`, {
+  getUserProfile: async (data) => {
+    const { id } = data;
+    const response = await fetch(
+      `http://localhost:5000/api/v1/user/${id}/profile`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "include",
+      }
+    );
+    return await response.json();
+  },
+  getUserData: async () => {
+    const response = await fetch(`http://localhost:5000/api/v1/user/data`, {
       method: "get",
       mode: "cors",
       credentials: "include",
     });
     return await response.json();
+  },
+  getIsAuth: async () => {
+     const response = await fetch(`http://localhost:5000/api/v1/`, {
+       method: "get",
+       mode: "cors",
+       credentials: "include",
+     });
+     return await response.json();
   }
 };

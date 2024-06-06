@@ -3,8 +3,9 @@ import { BsFillPersonFill } from "react-icons/bs";
 import { useLoading } from "./LoadingContext";
 import { ModalContext } from "./ModalContext";
 import { useContext } from "react";
+import PropTypes from "prop-types";
 
-const AvatarWidget = ({ id, avatar, size="60px" }) => {
+const AvatarWidget = ({ id, avatar, size="80px", disabled=false }) => {
   const { setLoading } = useLoading();
   const { setIsOpen, modalContent, setModalContent } = useContext(ModalContext);
   
@@ -31,9 +32,10 @@ const AvatarWidget = ({ id, avatar, size="60px" }) => {
       <button
         className={btnStyle}
         onClick={() => getUserProfile()}
+        disabled={disabled}
       >
         {avatar === "" ? (
-          <BsFillPersonFill className="w-full h-full" />
+          <BsFillPersonFill className="w-[100%] h-full" />
         ) : (
           <img
             src={avatar}
@@ -46,4 +48,10 @@ const AvatarWidget = ({ id, avatar, size="60px" }) => {
   );
 };
 
+AvatarWidget.propTypes = {
+  id: PropTypes.string.isRequired,
+  avatar: PropTypes.string,
+  size: PropTypes.string,
+  disabled: PropTypes.bool,
+};
 export default AvatarWidget;

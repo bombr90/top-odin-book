@@ -1,11 +1,13 @@
+
 import { useContext } from "react";
 import UserCardTemplate from "./UserCardTemplate";
 import { mainAPI } from "../apis/mainAPI";
 import { ModalContext } from "./ModalContext";
 import { useLoading } from "./LoadingContext";
 import PaginationWidget from "./PaginationWidget";
+import PropTypes from "prop-types";
 
-const UserIndexWidget = ({data}) => {
+const UserIndexWidget = ({ data }) => {
   const { setLoading } = useLoading();
   const {
     label,
@@ -15,7 +17,7 @@ const UserIndexWidget = ({data}) => {
 
   const refreshUserIndex = async (page, limit) => {
     try {
-      setLoading(true)
+      setLoading(true);
       const result = await mainAPI.userIndex(page, limit);
       setLoading(false);
       const { data } = result;
@@ -29,7 +31,7 @@ const UserIndexWidget = ({data}) => {
   };
 
   return (
-    <div key={label} className="flex flex-col justify-start h-[100%] ">
+    <div key={label} className="flex flex-1 flex-col justify-start h-[100%] ">
       {users.map((user) => (
         <UserCardTemplate
           key={user._id}
@@ -47,6 +49,10 @@ const UserIndexWidget = ({data}) => {
       />
     </div>
   );
+};
+
+UserIndexWidget.propTypes = {
+  data: PropTypes.object.isRequired,
 }
 
-export default UserIndexWidget
+export default UserIndexWidget;

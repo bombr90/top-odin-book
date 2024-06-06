@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */ // TODO: upgrade to latest eslint tooling
 import { mainAPI } from "../apis/mainAPI";
 import AvatarWidget from "./AvatarWidget";
+import PropTypes from "prop-types";
 
 const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
   const { _id, displayName, avatar, isFriend, isRecipient, isRequester } = userData;
@@ -9,25 +9,20 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
 
   async function sendFriendRequest() {
     try {
-      console.log('sending...')
-      const result = await mainAPI.postFriendRequest({ friendId: _id });
-      console.log(result)
-      console.log('results from sending friend request',result)
+      await mainAPI.postFriendRequest({ friendId: _id });
       await refreshUserIndex(page, limit);
     } catch (err) {
       console.error(err);
     }
   }
 
-  async function acceptFriendRequest(bool) {
+  async function updateFriendRequest(bool) {
     try{
-      console.log('acceptfriendrequest')
-      const result = await mainAPI.putFriendRequest({
+      await mainAPI.putFriendRequest({
         friendId: _id,
         requestStatus: bool,
       });
       await refreshUserIndex(page, limit);
-      console.log("accepted request", result);
     } catch(err){
       console.error(err);
     }
@@ -35,9 +30,8 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
 
   async function deleteFriendRequest() {
     try {
-      const result = await mainAPI.deleteFriendRequest({ friendId: _id });
+      await mainAPI.deleteFriendRequest({ friendId: _id });
       await refreshUserIndex(page, limit);
-      console.log("delete request", result);
     } catch (err) {
       console.error(err);
     }
@@ -45,9 +39,8 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
 
   async function removeFriend() {
     try {
-      const result = await mainAPI.deleteFriend({ friendId: _id });
+      await mainAPI.deleteFriend({ friendId: _id });
       await refreshUserIndex(page, limit);
-      console.log("remove friend", result);
     } catch (err) {
       console.error(err);
     }
@@ -62,7 +55,6 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
         {isFriend ? (
           <button
             className={btn}
-            // data-id={_id}
             onClick={() => removeFriend()}
           >
             Remove Friend
@@ -71,15 +63,13 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
           <div className="flex gap-2">
             <button
               className={btn}
-              // data-id={_id}
-              onClick={() => acceptFriendRequest(true)}
+              onClick={() => updateFriendRequest(true)}
             >
               Accept Request
             </button>
             <button
               className={btn}
-              // data-id={_id}
-              onClick={() => acceptFriendRequest(false)}
+              onClick={() => updateFriendRequest(false)}
             >
               Reject Request
             </button>
@@ -87,7 +77,6 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
         ) : isRequester ? (
           <button
             className={btn}
-            // data-id={_id}
             onClick={() => deleteFriendRequest()}
           >
             Cancel Friend Request
@@ -95,7 +84,6 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
         ) : (
           <button
             className={btn}
-            // data-id={_id}
             onClick={() => sendFriendRequest()}
           >
             Send Friend Request
@@ -104,6 +92,13 @@ const UserCardTemplate = ({ userData, refreshUserIndex, page, limit }) => {
       </div>
     </div>
   );
+};
+
+UserCardTemplate.propTypes = {
+  userData: PropTypes.object.isRequired,
+  refreshUserIndex: PropTypes.func.isRequired,
+  page: PropTypes.number,
+  limit: PropTypes.number,
 };
 
 export default UserCardTemplate;

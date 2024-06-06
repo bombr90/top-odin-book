@@ -1,4 +1,5 @@
 import { BsCardImage } from "react-icons/bs";
+import PropTypes from "prop-types";
 
 const PostWidget = ({data, onChange, onSubmit}) => {
   const {label, content} = data;
@@ -6,7 +7,7 @@ const PostWidget = ({data, onChange, onSubmit}) => {
   const charCounter = () => maxLength - content.length
 
   return (
-    <div className="flex flex-col h-[100%]">
+    <div className="flex flex-1 flex-col h-[100%]">
       <div className="relative flex flex-col flex-1">
         <textarea
           placeholder={`New ${label}...`}
@@ -24,7 +25,7 @@ const PostWidget = ({data, onChange, onSubmit}) => {
         <button
           className="disabled:cursor-not-allowed"
           disabled={true}
-          onClick={() => console.log("This functionality has not been added")}
+          onClick={() => alert("This functionality has not been added")}
         >
           <BsCardImage
             size={30}
@@ -43,4 +44,11 @@ const PostWidget = ({data, onChange, onSubmit}) => {
   );
 }
 
+PostWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  label: PropTypes.string,
+  content: PropTypes.object,
+}
 export default PostWidget

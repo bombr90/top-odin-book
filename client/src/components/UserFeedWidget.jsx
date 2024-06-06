@@ -5,18 +5,33 @@ import { userContext } from "./userContext";
 import { useContext } from "react";
 import { ModalContext } from "./ModalContext";
 import { useLoading } from "./LoadingContext";
-import { BsFillPersonFill } from "react-icons/bs";
 import AvatarWidget from "./AvatarWidget";
-
+import PaginationWidget from "./PaginationWidget";
+import PropTypes from "prop-types";
 const UserFeedWidget = ({data}) => {
   const {
-    label,
     content: { posts, limit, page, maxPage},
   } = data;
-  const { setModalContent } = useContext(ModalContext);
+  const { modalContent, setModalContent } = useContext(ModalContext);
   const { userData } = useContext(userContext);
   const { setLoading } = useLoading();
-  
+
+ const refreshPostIndex = async (page, limit) => {
+   try {
+     setLoading(true);
+     const result = await mainAPI.postIndex(page, limit);
+     setLoading(false);
+     const { data } = result;
+     setModalContent({
+       ...modalContent,
+       content: data,
+     });
+   } catch (err) {
+     console.error(err);
+   }
+ };
+
+
   const postTemplate = ({ id, author, content, commentCount, likeCount, created }) => {
     
     const likePost = async (id) => {
@@ -130,10 +145,20 @@ const UserFeedWidget = ({data}) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-1 flex-col">
       {posts.map((post) => postTemplate(post))}
+      <PaginationWidget
+        refresh={refreshPostIndex}
+        page={page}
+        limit={limit}
+        maxPage={maxPage}
+      />
     </div>
   );
+};
+
+UserFeedWidget.propTypes = {
+  data: PropTypes.object.isRequired,
 };
 
 export default UserFeedWidget;

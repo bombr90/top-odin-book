@@ -19,14 +19,6 @@ export const authAPI = {
     });
     return await response.json();
   },
-  checkUser: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/user/data`, {
-      method: "get",
-      mode: "cors",
-      credentials: "include",
-    });
-    return await response.json();
-  },
   registerUser: async (userProfile) => {
     const response = await fetch(`http://localhost:5000/auth/v1/user/local`, {
       method: "post",

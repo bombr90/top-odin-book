@@ -3,15 +3,41 @@ import { timeAgo } from "../util";
 import { BsFillPersonFill, BsFillHandThumbsUpFill } from "react-icons/bs";
 import { ModalContext } from "./ModalContext";
 import { useLoading } from "./LoadingContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { userContext } from "./userContext";
+import { authAPI } from "../apis/authAPI";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const UserProfileWidget = ({ data }) => {
-  const { id, displayName, avatar, created, updated, firstName, lastName, posts } = data.content;
-  const { setModalContent } = useContext(ModalContext);
+  const { id, displayName, avatar, created, updated, firstName, lastName, posts=[] } = data.content;
+  const { setModalContent, modalContent } = useContext(ModalContext);
   const { setLoading } = useLoading();
-
+  const [isConfirmed, setIsConfirmed] = useState(false)
+  const { userData, setUserData } = useContext(userContext);
+  const navigate=useNavigate();
   const dateCreated = new Date(created).toLocaleDateString();
-  
+  const deleteUser = async () => {
+      try { 
+        setLoading(true);
+        await authAPI.deleteUser();
+        setLoading(false);
+        setUserData(null);
+        alert('You have deleted your account.')
+        setModalContent({
+          ...modalContent,
+          label: "Login",
+          credentials: {
+            email: "",
+            password: "",
+          },
+        });
+        navigate("/auth/v1/login")
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
   const postTemplate = ({ id, content, likeCount, created }) => {
     const getPostDetails = async (id) => {
       try {
@@ -58,7 +84,7 @@ const UserProfileWidget = ({ data }) => {
   };
 
   return (
-    <div className="flex h-[100%] gap-2 flex-col text-gray-500 bg-gray-300 p-2 ">
+    <div className="flex flex-1 h-[100%] gap-2 flex-col text-gray-500 bg-gray-300 p-2 ">
       <div className="flex mx-auto gap-6 font-bold text-l">
         {avatar === "" ? (
           <div className="text-blue-800 self-center flex bg-gray-200 p-1 items-center aspect-square rounded-full m-2">
@@ -74,7 +100,7 @@ const UserProfileWidget = ({ data }) => {
             ></img>
           </div>
         )}
-        <span className="m-auto">{displayName}'s Profile</span>
+        <span className="m-auto">{displayName}&apos;s Profile</span>
       </div>
       <ul>
         <li>Member Since: {dateCreated}</li>
@@ -82,10 +108,50 @@ const UserProfileWidget = ({ data }) => {
         <li>First Name: {firstName || "Not disclosed"}</li>
         <li>Last Name: {lastName || "Not disclosed"}</li>
       </ul>
-      <span className="text-center font-bold">{displayName}'s Posts</span>
-      <div>{posts.map((post) => postTemplate(post))}</div>
+      {posts.length > 0 ? (
+        <>
+          <span className="text-center font-bold">
+            {displayName}&apos;s Posts
+          </span>
+          <div>{posts.map((post) => postTemplate(post))}</div>
+        </>
+      ) : (
+        ""
+      )}
+      {userData._id === id ? (
+        <div className="flex text-xs font-bold gap-2 self-end">
+          <input
+            className="hover:fill-white"
+            type="checkbox"
+            checked={isConfirmed}
+            onChange={() => setIsConfirmed(!isConfirmed)}
+            id="confirmBox"
+          ></input>
+          <button
+            disabled={!isConfirmed}
+            onClick={() => deleteUser()}
+            className="rounded-sm p-1 hover:text-gray-500 hover:bg-gray-200 disabled:cursor-not-allowed"
+          >
+            Delete Account
+          </button>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
+};
+
+UserProfileWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+  id: PropTypes.string,
+  displayName: PropTypes.string,
+  avatar: PropTypes.string,
+  created: PropTypes.string,
+  updated: PropTypes.string,
+  firstName: PropTypes.string,
+  lastName: PropTypes.string,
+  posts: PropTypes.array,
 };
 
 export default UserProfileWidget;

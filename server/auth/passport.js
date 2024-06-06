@@ -1,12 +1,10 @@
 // config > passport.cjs
-console.log("Loading config > passport.cjs");
 require("dotenv").config();
 const LocalStrategy = require('passport-local');
 const bcrypt = require("bcryptjs");
 const Auth = require("../models/auth.js")
 
 module.exports = function (passport) {
-console.log("loading auth > passport.js");
 
   passport.serializeUser(function (user, done) {
     done(null, user.id);
@@ -18,7 +16,6 @@ console.log("loading auth > passport.js");
         role: 1,
         email: 1,
       });
-      console.log('deserialize authobj\n',authObj);
       done(null, authObj);
     } catch (err) {
       done(err);
@@ -46,10 +43,11 @@ console.log("loading auth > passport.js");
           bcrypt.compare(password, authObj.local.password, (err, res) => {
             if (res) {
               // success return user id
+              console.log('succcessful login', authObj._id.toString())
               return done(null, { id: authObj._id.toString() } );
             } else {
               // passwords !match
-                return done(new Error("Incorrect password"));
+                return done(null, false, new Error("Incorrect password"));
 
               // return done(null, false, {
               //   message: "Incorrect password (auth)",

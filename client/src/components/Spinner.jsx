@@ -2,7 +2,7 @@ import { RotatingLines } from "react-loader-spinner";
 
 const Spinner = () => {
   return (
-    <div className="absolute absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-20">
+    <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50">
       <RotatingLines
         strokeColor="grey"
         strokeWidth="5"

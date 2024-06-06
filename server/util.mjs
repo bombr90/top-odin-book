@@ -28,9 +28,3 @@ export const timeAgo = (date) => {
   if (interval > 1) return Math.floor(interval) + " minutes";
   return Math.floor(seconds) + " seconds";
 };
-
-// module.exports = {
-//   timeToString,
-//   dateToString,
-//   timeAgo,
-// };
