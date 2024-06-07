@@ -1,6 +1,6 @@
 // Change this to the domain and port you will be hosting your backend service unless its on the same machine
-const domain = "http://localhost:5000";
-// const domain = "https://top-odin-book.onrender.com";
+// const domain = "http://localhost:5000";
+const domain = "https://top-odin-book.onrender.com";
 
 export const authAPI = {
   loginLocal: async (credentials) => {

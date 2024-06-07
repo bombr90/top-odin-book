@@ -42,6 +42,8 @@ app.use(
       secure: true,
       httpOnly: true,
       maxAge: 30 * 60 * 1000,
+      partitioned: true,
+      domain: "https://top-odin-book.onrender.com"
     }, // 30 minutes
   })
 );
