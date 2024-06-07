@@ -2,16 +2,16 @@
 
 The Odin Project - Assignment Odin-Book 
 
-A MERN (Mongo, Express, React, Node) app for demonstrating a full-stack barebones 'social network' application (inspired by Facebook).
+A MERN (Mongo, Express, React, Node) app for demonstrating a full-stack barebones 'social network' application (inspired by Facebook). Users can register an account (email/password), post/comment (text only), add friends, like posts and view friend profiles.
 
-## [Live Demo]()
+## [Live Demo](https://top-odin-book-frontend.onrender.com/)
 
 ## Getting Started*
 ```
 git clone https://github.com/bombr90/top-odin-book.git
-cd top-blog-api
+cd top-odin-book
 npm install
-npm start
+npm run dev
 ```
 
 >**Note: You'll need to self-host a mongoDB database or have mongoDB atlas account with a valid DB connection string saved as an environmental variable. Create a '.env' file in the root directory in the following format:* 
@@ -19,6 +19,8 @@ npm start
 >- SECRET = [your session secret]
 >- SERVER_PORT = [your selected port - default 5000]
 >- CLIENT_PORT = [your selected port - default 3000]
+
+>*Also, the git "main" branch is for hosting the app on localhost whereas the "renderProduction" is for hosting the frontend and backend on separate domains*
 
 ## Built with
 - [React](https://react.dev/)
