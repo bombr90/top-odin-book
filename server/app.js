@@ -13,7 +13,6 @@ const passport = require("passport");
 const session = require("express-session");
 const helmet = require("helmet");
 
-
 app.use(cookieParser());
 app.use(helmet());
 app.use(
@@ -21,9 +20,10 @@ app.use(
     credentials: true,
     origin: [
       `http://localhost:${clientPort}`,
+      `https://localhost:${clientPort}`,
       `https://top-odin-book-frontend.onrender.com`,
     ],
-    allowedHeaders: ['Content-Type', 'Accept','Authorization','Set-Cookie'],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization", "Set-Cookie"],
     methods: ["GET", "PUT", "DELETE", "POST", "HEAD", "OPTIONS"],
   })
 );
@@ -38,10 +38,10 @@ app.use(
     saveUninitialized: true,
     cookie: {
       sameSite: "none",
-      secure:true,
+      secure: "auto",
       httpOnly: false,
-      maxAge: 720 * 60 * 1000,
-    }, // 12hr
+      maxAge: 30 * 60 * 1000,
+    }, // 30 minutes
   })
 );
 
