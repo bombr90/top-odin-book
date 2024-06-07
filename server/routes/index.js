@@ -11,14 +11,14 @@ const latest = 'v1'
 //   });
 // });
 
-router.get("/", function (req, res) {
+router.get(["/", "/*"], function (req, res) {
   const newPath = `/api/${latest}${req.originalUrl}`;
   res.redirect(307, newPath);
 });
 
-router.get(["/latest", "/latest*"], function (req, res) {
-  const newPath = `/api/${latest}${req.originalUrl.split("/latest")[1]}`;
-  res.redirect(307, newPath);
-});
+// router.get(["/latest", "/latest*"], function (req, res) {
+//   const newPath = `/api/${latest}${req.originalUrl.split("/latest")[1]}`;
+//   res.redirect(307, newPath);
+// });
 
 module.exports = router;
