@@ -31,6 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Session Setup
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: process.env.SECRET || crypto.randomBytes(64).toString("hex"),
@@ -38,8 +39,8 @@ app.use(
     saveUninitialized: true,
     cookie: {
       sameSite: "none",
-      secure: "auto",
-      httpOnly: false,
+      secure: true,
+      httpOnly: true,
       maxAge: 30 * 60 * 1000,
     }, // 30 minutes
   })
