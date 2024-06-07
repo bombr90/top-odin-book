@@ -11,7 +11,7 @@ const latest = 'v1'
 //   });
 // });
 
-router.get(["/", "/*"], function (req, res) {
+router.get(["/"], function (req, res) {
   const newPath = `/api/${latest}${req.originalUrl}`;
   res.redirect(307, newPath);
 });
