@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Session Setup
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 app.use(
   session({
     secret: process.env.SECRET || crypto.randomBytes(64).toString("hex"),
@@ -43,7 +43,6 @@ app.use(
       httpOnly: true,
       maxAge: 30 * 60 * 1000,
       partitioned: true,
-      domain: "https://top-odin-book.onrender.com"
     }, // 30 minutes
   })
 );
